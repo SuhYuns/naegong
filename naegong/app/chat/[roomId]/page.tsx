@@ -10,7 +10,7 @@ export default function ChatRoomPage() {
   const { roomId } = useParams() as { roomId: string };
   const { isLoading } = useSessionContext();
   const session = useSession();
-  const supabase = useSupabaseClient();
+  const supabase = useSupabaseClient<any>();
   const router = useRouter();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);

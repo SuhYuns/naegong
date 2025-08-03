@@ -10,43 +10,51 @@ import { useRouter } from 'next/navigation';
 export default function ChatListPage() {
   const { isLoading } = useSessionContext();
   const session = useSession();
-  const supabase = useSupabaseClient();
+  const supabase = useSupabaseClient<any>();
   const router = useRouter();
   const [items, setItems] = useState<
     { room_id: string; other_id: string | null; last_content?: string | null; last_at?: string | null; unread_count: number }[]
   >([]);
 
   useEffect(() => {
-    if (isLoading) return;
-    if (!session) {
-      router.replace('/login?next=/chat');
-      return;
+  if (isLoading) return;
+
+  if (!session) {
+    router.replace('/login?next=/chat');
+    return;
+  }
+
+  const me = session.user.id;
+
+  const load = async () => {
+    try {
+      const data = await fetchMyRooms(supabase, me);
+      setItems(data);
+    } catch (e) {
+      console.error(e);
     }
+  };
 
-    const me = session.user.id;
+  // 리턴값을 사용하지 않는 비동기 호출은 명시적으로 무시
+  void load();
 
-    const load = async () => {
-      try {
-        const data = await fetchMyRooms(supabase, me);
-        setItems(data);
-      } catch (e) {
-        console.error(e);
+  // 핸들러는 Promise를 반환하지 않도록 래핑
+  const ch = supabase
+    .channel('chat-list')
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'chat_messages' },
+      async () => {
+        await load();
       }
-    };
+    )
+    .subscribe();
 
-    load();
-
-    const ch = supabase
-      .channel('chat-list')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'chat_messages' },
-        load
-      )
-      .subscribe();
-
-    return () => supabase.removeChannel(ch);
-  }, [isLoading, session, supabase, router]);
+  // cleanup
+  return () => {
+    supabase.removeChannel(ch);
+  };
+}, [isLoading, session, supabase, router]);
 
   if (isLoading) return <div className="p-6">로딩 중…</div>;
   if (!session) return null;
