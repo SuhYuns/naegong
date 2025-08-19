@@ -192,7 +192,7 @@ export default function ProviderPage() {
                 상점 관리
               </button>
               <button
-                onClick={() => router.push('/portfolio')}
+                onClick={() => router.push('/portfolios')}
                 className="px-4 py-2 border rounded hover:bg-gray-50"
               >
                 포트폴리오 보러가기
