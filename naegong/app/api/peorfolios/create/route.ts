@@ -1,14 +1,18 @@
-// app/api/portfolios/create/route.ts
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+
+export const dynamic = 'force-dynamic'; // 정적 캐시 방지(중요)
+
+export async function GET() {
+  return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
+}
 
 export async function POST(req: Request) {
   const supabase = createRouteHandlerClient({ cookies });
 
   try {
     const body = await req.json();
-
     const {
       storeId,
       projectTitle,
@@ -53,7 +57,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ id: data.id }, { status: 201 });
   } catch (e: any) {
-    console.error('create portfolio error:', e);
+    console.error('[create portfolio] error', e);
     return NextResponse.json({ error: e.message ?? 'Server error' }, { status: 500 });
   }
 }
