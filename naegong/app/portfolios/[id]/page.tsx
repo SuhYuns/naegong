@@ -26,6 +26,41 @@ type Portfolio = {
 
 type Sibling = { id: string; project_title: string } | null;
 
+function SpecCard({
+  emoji,
+  label,
+  value,
+  suffix,
+}: {
+  emoji: string;
+  label: string;
+  value?: string | number | null;
+  suffix?: string;
+}) {
+  const display =
+    value === null || value === undefined || value === '' ? '—' : `${value}${suffix ?? ''}`;
+
+  return (
+    <div className="
+      flex items-start gap-4 p-4
+      rounded-2xl border border-gray-200/70 bg-white/70
+      shadow-sm hover:shadow-md transition
+    ">
+      <div className="
+        shrink-0 size-10 rounded-xl
+        flex items-center justify-center
+        bg-gradient-to-br from-amber-50 to-amber-100 text-amber-700
+      ">
+        <span className="text-lg">{emoji}</span>
+      </div>
+      <div className="min-w-0">
+        <div className="text-xs font-medium text-gray-500 mb-1">{label}</div>
+        <div className="text-lg font-semibold text-gray-900 truncate">{display}</div>
+      </div>
+    </div>
+  );
+}
+
 export default function PortfolioViewerPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -203,20 +238,32 @@ export default function PortfolioViewerPage() {
 
       {/* ───── 본문 ───── */}
       <div className="p-6 max-w-3xl mx-auto sm:text-sm">
-        {/* 메타 박스 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
-          <Meta label="유형" value={p.type} />
-          <Meta label="면적" value={p.area ? `${p.area}` : ''} />
-          <Meta label="지역" value={p.location} />
-          <Meta label="스타일" value={p.style} />
-          <Meta label="공사 기간(주)" value={p.duration ? `${p.duration}` : ''} />
-          <Meta label="투입 인원(명)" value={p.personnel ? `${p.personnel}` : ''} />
-          {p.tags?.length ? (
-            <div className="md:col-span-2">
-              <Meta label="태그" value={p.tags.map((t) => `#${t}`).join(' ')} />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+            <SpecCard emoji="🏷️" label="유형" value={p.type} />
+            <SpecCard emoji="📐" label="면적" value={p.area} suffix="평" />
+            <SpecCard emoji="📍" label="지역" value={p.location} />
+            <SpecCard emoji="🎨" label="스타일" value={p.style} />
+            <SpecCard emoji="🗓️" label="공사 기간" value={p.duration} suffix="주" />
+            <SpecCard emoji="👷" label="투입 인원" value={p.personnel} suffix="명" />
             </div>
-          ) : null}
-        </div>
+
+            {/* 태그 칩 */}
+            {p.tags?.length ? (
+            <div className="mb-10 rounded-2xl border border-gray-200/70 bg-white/70 p-4 shadow-sm">
+                <div className="text-xs font-medium text-gray-500 mb-2">태그</div>
+                <div className="flex flex-wrap gap-2">
+                {p.tags.map((t) => (
+                    <span
+                    key={t}
+                    className="px-2.5 py-1 rounded-full text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+                    >
+                    #{t}
+                    </span>
+                ))}
+                </div>
+            </div>
+            ) : null}
 
         {/* SunEditor HTML 그대로 출력 */}
         <div
