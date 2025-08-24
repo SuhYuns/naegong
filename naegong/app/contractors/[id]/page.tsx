@@ -11,6 +11,8 @@ import { useSupabaseClient } from '@supabase/auth-helpers-react';
 import { ensureDmRoom } from '@/lib/chat';
 import { useSession } from '@supabase/auth-helpers-react';
 
+import StorePortfolioGrid from '@/components/StorePortfolioGrid';
+
 type Store = {
   id: string;
   name: string;
@@ -198,11 +200,14 @@ export default function ContractorDetailPage() {
 
           {/* 좌하: 포트폴리오(미구현 자리) */}
           <section className="bg-white border rounded-lg p-6">
-            <h2 className="text-lg font-semibold mb-4">포트폴리오</h2>
-            <div className="h-40 flex items-center justify-center text-sm text-gray-400">
-              (포트폴리오 영역 – 추후 구현)
-            </div>
-          </section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">포트폴리오</h2>
+            {/* (선택) 더보기 버튼: 전체 목록 페이지가 있다면 */}
+            {/* <Link href={`/portfolios?store=${store.id}`} className="text-sm text-gray-500 hover:text-gray-700">더보기</Link> */}
+          </div>
+
+          <StorePortfolioGrid storeId={store.id} limit={6} />
+        </section>
         </div>
 
         {/* 우측(7칸): 상(캘린더 자리) / 하(리뷰 자리) */}
